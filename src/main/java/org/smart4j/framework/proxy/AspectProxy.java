@@ -6,6 +6,11 @@ import org.apache.log4j.Logger;
 
 /**
  * 切面代理
+ * 有选择的进行代理实现
+ * begin在方法开始的时候运行
+ * before在方法之前运行
+ * after在方法之后运行
+ * end在方法最后进行运行
  * @author Administrator
  *
  */
