@@ -63,7 +63,7 @@ public class ProxyChain {
 		 * 疑问2 如果能执行 那是应用什么逻辑来执行的
 		 */
 		if (proxyIndex < proxyList.size()) {
-			methodResult = proxyList.get(proxyIndex ++).doProxy(this);
+			methodResult = proxyList.get(proxyIndex++).doProxy(this);
 		}else{
 			methodResult = methodProxy.invokeSuper(targetObject, methodParams);
 		}
