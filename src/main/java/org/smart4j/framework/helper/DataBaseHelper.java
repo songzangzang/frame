@@ -89,6 +89,57 @@ public final class DataBaseHelper {
 //		}
 //	}
 //	
+	
+	/**
+	 * 开启事务
+	 */
+	public static void beginTransaction(){
+		Connection conn = getConnection();
+		if (conn != null) {
+			try {
+				conn.setAutoCommit(false);
+			} catch (SQLException e) {
+				LOGGER.error("begin tarnsaction failure", e);
+				throw new RuntimeException(e);
+			} finally {
+				CONNECTION_HOLDER.set(conn);
+			}
+		}
+	}
+	
+	/**
+	 * 提交事务
+	 */
+	public static void commitTranaction(){
+		Connection conn = getConnection();
+		if (conn != null) {
+			try {
+				conn.commit();
+			} catch (SQLException e) {
+				LOGGER.error("commit tranaction filure", e);
+				throw new RuntimeException(e);
+			} finally {
+				CONNECTION_HOLDER.remove();
+			}
+		}
+	}
+	
+	/**
+	 * 回滚事务
+	 */
+	public static void rollbackTrancation(){
+		Connection conn = getConnection();
+		if (conn != null) {
+			try {
+				conn.rollback();
+				conn.close();
+			} catch (SQLException e) {
+				LOGGER.error("rollback trancation filure", e);
+				throw new RuntimeException(e);
+			}
+		}
+	}
+	
 	/**
 	 * 查询实体列表
 	 */

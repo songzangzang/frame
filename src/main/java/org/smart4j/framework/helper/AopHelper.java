@@ -12,9 +12,11 @@ import javax.servlet.jsp.tagext.TryCatchFinally;
 
 import org.apache.log4j.Logger;
 import org.smart4j.framework.annotation.Aspect;
+import org.smart4j.framework.annotation.Transaction;
 import org.smart4j.framework.proxy.AspectProxy;
 import org.smart4j.framework.proxy.Proxy;
 import org.smart4j.framework.proxy.ProxyManager;
+import org.smart4j.framework.proxy.TrancationProxy;
 
 /**
  * Aop帮助类
@@ -67,6 +69,12 @@ public final class AopHelper {
 	 */
 	private static Map<Class<?>, Set<Class<?>>> createProxyMap() throws Exception{
 		Map<Class<?>, Set<Class<?>>> proxyMap = new HashMap<Class<?>, Set<Class<?>>>();
+		addAspectProxy(proxyMap);
+		addTransactionProxy(proxyMap);
+		return proxyMap;
+	}
+
+	private static Map<Class<?>, Set<Class<?>>> addAspectProxy(Map<Class<?>, Set<Class<?>>> proxyMap) throws Exception {
 		//获取类或接口 对应的 子类或实现
 		Set<Class<?>> proxyClassSet = ClassHelper.getClassSetBySuper(AspectProxy.class);
 		for(Class<?> proxyClass : proxyClassSet){
@@ -80,6 +88,11 @@ public final class AopHelper {
 		}
 		return proxyMap;
 	} 
+	
+	private static void addTransactionProxy(Map<Class<?>, Set<Class<?>>> proxyMap) {
+		Set<Class<?>> proxyClassSet = ClassHelper.getServiceClassSet();
+		proxyMap.put(TrancationProxy.class, proxyClassSet);
+	}
 	
 	/**
 	 * 获取目标和代理对象的集合
