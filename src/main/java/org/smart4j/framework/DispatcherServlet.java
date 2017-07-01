@@ -36,6 +36,7 @@ import org.smart4j.framework.util.StringUtil;
  */
 @WebServlet(urlPatterns="/*",loadOnStartup=0)
 public class DispatcherServlet extends HttpServlet{
+	private static final long serialVersionUID = 1L;
 
 	@Override
 	public void init(ServletConfig servletConfig) throws ServletException {
@@ -86,8 +87,13 @@ public class DispatcherServlet extends HttpServlet{
 		
 		Param param = new Param(paramMap);
 		//调用Action方法
+		Object result;
 		Method actionMethod = handler.getActionMethod();
-		Object result = ReflectionUtil.invokeMethod(controllerBean, actionMethod, param);
+		if (param.isEmpty()) {
+			result = ReflectionUtil.invokeMethod(controllerBean, actionMethod);
+		} else {
+			result = ReflectionUtil.invokeMethod(controllerBean, actionMethod, param);
+		}
 		//处理Action方法返回值
 		if (result instanceof View) {
 			//返回jsp页面
