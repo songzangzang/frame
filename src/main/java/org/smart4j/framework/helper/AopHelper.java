@@ -38,6 +38,15 @@ public final class AopHelper {
 				List<Proxy> proxyList = targetEntry.getValue();
 				//创建代理对象
 				Object proxy = ProxyManager.createProxy(targetClass, proxyList);
+				//判断是否是Service并把targetClass换成接口名完成注入
+				if (targetClass.toString().endsWith("Impl")) {
+					Set<Class<?>> beanClassSet = ClassHelper.getBeanClassSet();
+					for(Class<?> cls : beanClassSet){
+						if (cls.isAssignableFrom(targetClass) && !cls.equals(targetClass)) {
+							targetClass = cls;
+						}	
+					}
+				}
 				//重新覆盖之前BeanHelper中类和实例之间的映射关系
 				BeanHelper.setBean(targetClass, proxy);
 			}

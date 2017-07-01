@@ -22,17 +22,14 @@ public final class BeanHelper {
 	
 	static {
 		Set<Class<?>> beanClassSet = ClassHelper.getBeanClassSet();
-		Set<Class<?>> serviceClassSet = ClassHelper.getServiceClassSet();
 		//遍历全部类文件
 		for (Class cls : beanClassSet){
 		Object obj = null;
 		Class serviceDI = null;
-			Iterator<Class<?>> serviceIterator = serviceClassSet.iterator();
 			//遍历带Service注解的类文件
-			while (serviceIterator.hasNext()) {
-				Class<?> serviceClass = serviceIterator.next();
-				if (cls.isAssignableFrom(serviceClass) && !serviceClass.equals(cls)) {
-					serviceDI = serviceClass;
+			for (Class clz : beanClassSet){
+				if (cls.isAssignableFrom(clz) && !cls.equals(clz)) {
+					serviceDI = clz;
 				}
 			}
 			
@@ -56,7 +53,6 @@ public final class BeanHelper {
 	/**
 	 * 获取Bean实例
 	 */
-	@SuppressWarnings("unchecked")
 	public static <T> T getBean(Class<T> cls){
 		if (!BEAN_MAP.containsKey(cls)) {
 			throw new RuntimeException();
