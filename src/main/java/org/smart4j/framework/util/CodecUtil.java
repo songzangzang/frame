@@ -30,7 +30,7 @@ public final class CodecUtil {
 	}
 	
 	/**
-	 * 将URL解压
+	 * 将URL解码
 	 */
 	public static String decodeURL(String source){
 		String target;

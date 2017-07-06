@@ -107,28 +107,28 @@ public class Param {
 	 * 根据参数名获取String类型参数
 	 */
 	public String getString(String name){
-		return CastUtil.castString(getFileMap().get(name));
+		return CastUtil.castString(getFieldMap().get(name));
 	}
 	
 	/**
 	 * 根据参数名获取long类型参数
 	 */
 	public long getLong(String name){
-		return CastUtil.castLong(getFileMap().get(name));
+		return CastUtil.castLong(getFieldMap().get(name));
 	}
 	
 	/**
 	 * 根据参数名获取double类型参数
 	 */
 	public double getDouble(String name){
-		return CastUtil.castDouble(getFileMap().get(name));
+		return CastUtil.castDouble(getFieldMap().get(name));
 	}
 	
 	/**
 	 * 根据参数名获取int类型参数
 	 */
 	public int getInt(String name){
-		return CastUtil.castInt(name);
+		return CastUtil.castInt(getFieldMap().get(name));
 	}
 	
 	/**
@@ -137,7 +137,7 @@ public class Param {
 	 * @return
 	 */
 	public boolean getBoolean(String name){
-		return CastUtil.castBoolean(getFileMap().get(name));
+		return CastUtil.castBoolean(getFieldMap().get(name));
 	}
 	
 	/**

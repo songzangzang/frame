@@ -24,6 +24,7 @@ import org.smart4j.framework.helper.BeanHelper;
 import org.smart4j.framework.helper.ConfigHelper;
 import org.smart4j.framework.helper.ControllerHelper;
 import org.smart4j.framework.helper.RequestHelper;
+import org.smart4j.framework.helper.ServletHelper;
 import org.smart4j.framework.helper.UploadHelper;
 import org.smart4j.framework.util.ArrayUtil;
 import org.smart4j.framework.util.CodecUtil;
@@ -58,45 +59,53 @@ public class DispatcherServlet extends HttpServlet{
 	
 	@Override
 	public void service(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		//获取请求方法
-		String requestMethod = request.getMethod().toLowerCase();
-		String requestPath = request.getPathInfo();
+		//初始化请求响应方法
+		ServletHelper.init(request, response);
 		
-		if (requestPath.equals("/favicon.ico")) {
-			return;	
-		}
-		
-		//获取Action 处理器
-		Handler handler = ControllerHelper.getHandler(requestMethod, requestPath);
-		if (handler != null) {
-			//获取Controller类及其Bean实例
-			Class<?> controllerClass = handler.getControllerClass();
-			Object controllerBean = BeanHelper.getBean(controllerClass);
-			//创建请求参数
+		try {
+			//获取请求方法
+			String requestMethod = request.getMethod().toLowerCase();
+			String requestPath = request.getPathInfo();
 			
-			Param param = null;
-			if (UploadHelper.isMultipart(request)) {
-				param = UploadHelper.createParam(request);
-			} else {
-				param = RequestHelper.createParam(request);
+			if (requestPath.equals("/favicon.ico")) {
+				return;	
 			}
 			
-		//调用Action方法
-		Object result;
-		Method actionMethod = handler.getActionMethod();
-		if (param.isEmpty()) {
-			result = ReflectionUtil.invokeMethod(controllerBean, actionMethod);
-		} else {
-			result = ReflectionUtil.invokeMethod(controllerBean, actionMethod, param);
-		}
-		//处理Action方法返回值
-		if (result instanceof View) {
-			//返回jsp页面
-			handleViewResult((View) result, request, response);
-		} else if (result instanceof Data){
-			//返回json数据
-			handleDataResult((Data)result, response);
-		  }
+			//获取Action 处理器
+			Handler handler = ControllerHelper.getHandler(requestMethod, requestPath);
+			if (handler != null) {
+				//获取Controller类及其Bean实例
+				Class<?> controllerClass = handler.getControllerClass();
+				Object controllerBean = BeanHelper.getBean(controllerClass);
+				//创建请求参数
+				
+				Param param = null;
+				if (UploadHelper.isMultipart(request)) {
+					param = UploadHelper.createParam(request);
+				} else {
+					param = RequestHelper.createParam(request);
+				}
+				
+				//调用Action方法
+				Object result;
+				Method actionMethod = handler.getActionMethod();
+				if (param.isEmpty()) {
+					result = ReflectionUtil.invokeMethod(controllerBean, actionMethod);
+				} else {
+					result = ReflectionUtil.invokeMethod(controllerBean, actionMethod, param);
+				}
+				//处理Action方法返回值
+				if (result instanceof View) {
+					//返回jsp页面
+					handleViewResult((View) result);
+				} else if (result instanceof Data){
+					//返回json数据
+					handleDataResult((Data)result);
+				}
+			}
+			
+		} catch (Exception e) {
+			ServletHelper.destory();
 		}
 	}
 	
@@ -105,31 +114,27 @@ public class DispatcherServlet extends HttpServlet{
 	 * @throws ServletException 
 	 * 
 	 */
-	private void handleViewResult(View view, HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+	private void handleViewResult(View view) throws ServletException, IOException{
 		String path = view.getPath();
 		if (StringUtil.isNotEmpty(path)) {
 			if (path.startsWith("/")) {
-				try {
-					response.sendRedirect(request.getContextPath() + path);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				ServletHelper.sendRedirect(ServletHelper.getRequest().getContextPath() + path);
 			} else {
 				Map<String, Object> model = view.getModel();
 				for(Map.Entry<String, Object> entry : model.entrySet()){
-					request.setAttribute(entry.getKey(), entry.getValue());
+					ServletHelper.setRequestAttribute(entry.getKey(), entry.getValue());
 				}
-				request.getRequestDispatcher(ConfigHelper.getAppJspPath() + path).forward(request, response);;
+				ServletHelper.sendRequestDispatcher(ConfigHelper.getAppJspPath() + path);
 			}
 		}
 	}
 	
-	private void handleDataResult(Data data, HttpServletResponse response) throws IOException{
+	private void handleDataResult(Data data) throws IOException{
 		Object model = data.getModel();
 		if (model != null) {
-			response.setContentType("application/json");
-			response.setCharacterEncoding("UTF-8");
-			PrintWriter writer = response.getWriter();
+			ServletHelper.getResponse().setContentType("application/json");
+			ServletHelper.getResponse().setCharacterEncoding("UTF-8");
+			PrintWriter writer = ServletHelper.getResponse().getWriter();
 			String json = JsonUtil.toJson(model);
 			writer.write(json);
 			writer.flush();

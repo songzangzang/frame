@@ -61,17 +61,4 @@ public class FileParam {
 		return inputStream;
 	}
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 }
